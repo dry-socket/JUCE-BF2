@@ -1,0 +1,15 @@
+build/
+*.user
+*.suo
+*.VC.db
+*.VC.VC.opendb
+.vs/
+
+# Build products
+*.vst3/
+*.exe
+*.lib
+*.exp
+*.obj
+*.pdb
+*.ilk
