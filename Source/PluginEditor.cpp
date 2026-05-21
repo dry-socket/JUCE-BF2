@@ -4,6 +4,8 @@
 namespace
 {
 const auto desktop = juce::Colour (0xff17171a);
+const auto ledOff = juce::Colour (0xff2a0808);
+const auto ledOn = juce::Colour (0xffff3038);
 
 class BF2LookAndFeel final : public juce::LookAndFeel_V4
 {
@@ -91,7 +93,9 @@ BF2StyleFlangerAudioProcessorEditor::Knob::Knob (
     : small (isSmallKnob)
 {
     styleKnob (slider);
-    slider.setAlpha (0.01f);
+    if (small)
+        slider.setAlpha (0.01f);
+
     slider.setTooltip (labelText);
     addAndMakeVisible (slider);
 
@@ -130,6 +134,14 @@ BF2StyleFlangerAudioProcessorEditor::BF2StyleFlangerAudioProcessorEditor (BF2Sty
     for (auto& knob : knobs)
         addAndMakeVisible (*knob);
 
+    footSwitch.setButtonText ({});
+    footSwitch.setClickingTogglesState (true);
+    footSwitch.setAlpha (0.01f);
+    addAndMakeVisible (footSwitch);
+    footSwitchAttachment = std::make_unique<ButtonAttachment> (state, "enabled", footSwitch);
+    footSwitch.onClick = [this] { repaint(); };
+
+    startTimerHz (24);
     setSize (390, 660);
 }
 
@@ -144,6 +156,28 @@ void BF2StyleFlangerAudioProcessorEditor::paint (juce::Graphics& g)
 
     if (pedalPhoto.isValid())
         g.drawImage (pedalPhoto, photoBounds, juce::RectanglePlacement::stretchToFit);
+
+    const auto enabled = audioProcessor.getValueTreeState().getRawParameterValue ("enabled")->load() > 0.5f;
+    const auto ledCentre = juce::Point<float> (photoBounds.getX() + photoBounds.getWidth() * 0.50f,
+                                              photoBounds.getY() + photoBounds.getHeight() * 0.065f);
+    const auto led = juce::Rectangle<float> (12.0f, 12.0f).withCentre (ledCentre);
+
+    if (enabled)
+    {
+        juce::ColourGradient glow (ledOn.withAlpha (0.65f), ledCentre.x, ledCentre.y,
+                                   ledOn.withAlpha (0.0f), ledCentre.x + 26.0f, ledCentre.y + 26.0f, true);
+        g.setGradientFill (glow);
+        g.fillEllipse (led.expanded (18.0f));
+        g.setColour (ledOn);
+    }
+    else
+    {
+        g.setColour (ledOff);
+    }
+
+    g.fillEllipse (led);
+    g.setColour (juce::Colours::white.withAlpha (enabled ? 0.42f : 0.12f));
+    g.fillEllipse (led.reduced (3.0f).withTrimmedBottom (5.0f));
 }
 
 void BF2StyleFlangerAudioProcessorEditor::resized()
@@ -168,4 +202,14 @@ void BF2StyleFlangerAudioProcessorEditor::resized()
     const auto trimSize = juce::roundToInt (w * 0.16f);
     knobs[4]->setBounds (juce::roundToInt (x + w * 0.19f), juce::roundToInt (y + h * 0.57f), trimSize, trimSize);
     knobs[5]->setBounds (juce::roundToInt (x + w * 0.65f), juce::roundToInt (y + h * 0.57f), trimSize, trimSize);
+
+    footSwitch.setBounds (juce::roundToInt (x + w * 0.15f),
+                          juce::roundToInt (y + h * 0.63f),
+                          juce::roundToInt (w * 0.70f),
+                          juce::roundToInt (h * 0.25f));
+}
+
+void BF2StyleFlangerAudioProcessorEditor::timerCallback()
+{
+    repaint();
 }

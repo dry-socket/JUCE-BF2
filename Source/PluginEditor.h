@@ -3,7 +3,8 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
-class BF2StyleFlangerAudioProcessorEditor final : public juce::AudioProcessorEditor
+class BF2StyleFlangerAudioProcessorEditor final : public juce::AudioProcessorEditor,
+                                                  private juce::Timer
 {
 public:
     explicit BF2StyleFlangerAudioProcessorEditor (BF2StyleFlangerAudioProcessor&);
@@ -14,6 +15,7 @@ public:
 
 private:
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
+    using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
     struct Knob final : public juce::Component
     {
@@ -33,6 +35,10 @@ private:
     BF2StyleFlangerAudioProcessor& audioProcessor;
     std::array<std::unique_ptr<Knob>, 6> knobs;
     juce::Image pedalPhoto;
+    juce::ToggleButton footSwitch;
+    std::unique_ptr<ButtonAttachment> footSwitchAttachment;
+
+    void timerCallback() override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BF2StyleFlangerAudioProcessorEditor)
 };

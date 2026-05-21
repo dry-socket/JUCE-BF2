@@ -37,6 +37,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout BF2StyleFlangerAudioProcesso
         "mix", "Mix", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f), 0.58f));
     params.push_back (std::make_unique<juce::AudioParameterFloat> (
         "output", "Output", juce::NormalisableRange<float> (-18.0f, 12.0f, 0.1f), 0.0f, "dB"));
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        "enabled", "Pedal", true));
 
     return { params.begin(), params.end() };
 }
@@ -109,6 +111,13 @@ void BF2StyleFlangerAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
 
     for (auto channel = totalNumInputChannels; channel < totalNumOutputChannels; ++channel)
         buffer.clear (channel, 0, buffer.getNumSamples());
+
+    if (getParameterValue (parameters, "enabled") < 0.5f)
+    {
+        delay.reset();
+        feedbackState.fill (0.0f);
+        return;
+    }
 
     manualMs.setTargetValue (getParameterValue (parameters, "manual"));
     depthMs.setTargetValue (getParameterValue (parameters, "depth"));
