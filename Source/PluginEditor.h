@@ -17,13 +17,17 @@ private:
 
     struct Knob final : public juce::Component
     {
-        Knob (juce::AudioProcessorValueTreeState& state, const juce::String& parameterId, const juce::String& labelText);
+        Knob (juce::AudioProcessorValueTreeState& state,
+              const juce::String& parameterId,
+              const juce::String& labelText,
+              bool isSmallKnob = false);
 
         void resized() override;
 
         juce::Slider slider;
         juce::Label label;
         std::unique_ptr<SliderAttachment> attachment;
+        bool small = false;
     };
 
     BF2StyleFlangerAudioProcessor& audioProcessor;
