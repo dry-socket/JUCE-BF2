@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="660" viewBox="0 0 390 660" role="img" aria-labelledby="title desc">
+  <title id="title">BF-2 style flanger pedal reference</title>
+  <desc id="desc">A vector reference image inspired by a purple BF-2 flanger pedal layout.</desc>
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#df82be"/>
+      <stop offset="0.18" stop-color="#a73b87"/>
+      <stop offset="0.72" stop-color="#84256f"/>
+      <stop offset="1" stop-color="#46103b"/>
+    </linearGradient>
+    <radialGradient id="knob" cx="35%" cy="25%" r="70%">
+      <stop offset="0" stop-color="#fbf7ec"/>
+      <stop offset="0.5" stop-color="#c9ccca"/>
+      <stop offset="0.72" stop-color="#777c80"/>
+      <stop offset="1" stop-color="#1d2023"/>
+    </radialGradient>
+    <linearGradient id="rubber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#303538"/>
+      <stop offset="1" stop-color="#050607"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="4" dy="8" stdDeviation="5" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <rect width="390" height="660" fill="#17171a"/>
+  <g filter="url(#shadow)">
+    <rect x="36" y="20" width="318" height="608" rx="16" fill="url(#body)"/>
+    <rect x="38" y="22" width="314" height="604" rx="15" fill="none" stroke="#5f154f" stroke-width="3"/>
+    <line x1="50" y1="28" x2="340" y2="28" stroke="#fff" stroke-opacity="0.22" stroke-width="2"/>
+
+    <rect x="54" y="36" width="282" height="150" rx="5" fill="#080a0c"/>
+    <rect x="55" y="37" width="280" height="148" rx="5" fill="none" stroke="#fff" stroke-opacity="0.45"/>
+    <text x="195" y="49" text-anchor="middle" fill="#e8e2d3" font-family="Arial, sans-serif" font-size="9" font-weight="700">CHECK</text>
+    <circle cx="195" cy="63" r="7" fill="#331515"/>
+    <circle cx="195" cy="63" r="4.5" fill="#b7282d"/>
+
+    <g font-family="Arial, sans-serif" font-size="9" font-weight="700" fill="#fff">
+      <text x="72" y="77" text-anchor="middle">MANUAL</text>
+      <text x="154" y="77" text-anchor="middle">DEPTH</text>
+      <text x="236" y="77" text-anchor="middle">RATE</text>
+      <text x="318" y="77" text-anchor="middle">RESONANCE</text>
+    </g>
+
+    <g>
+      <circle cx="72" cy="105" r="26" fill="#000" opacity="0.55" transform="translate(2 5)"/>
+      <circle cx="72" cy="105" r="25" fill="url(#knob)" stroke="#0b0d10" stroke-width="1.4"/>
+      <rect x="70.5" y="83" width="3" height="15" rx="1.5" fill="#f7f1e6"/>
+      <circle cx="154" cy="105" r="26" fill="#000" opacity="0.55" transform="translate(2 5)"/>
+      <circle cx="154" cy="105" r="25" fill="url(#knob)" stroke="#0b0d10" stroke-width="1.4"/>
+      <rect x="152.5" y="83" width="3" height="15" rx="1.5" fill="#f7f1e6"/>
+      <circle cx="236" cy="105" r="26" fill="#000" opacity="0.55" transform="translate(2 5)"/>
+      <circle cx="236" cy="105" r="25" fill="url(#knob)" stroke="#0b0d10" stroke-width="1.4"/>
+      <rect x="234.5" y="83" width="3" height="15" rx="1.5" fill="#f7f1e6"/>
+      <circle cx="318" cy="105" r="26" fill="#000" opacity="0.55" transform="translate(2 5)"/>
+      <circle cx="318" cy="105" r="25" fill="url(#knob)" stroke="#0b0d10" stroke-width="1.4"/>
+      <rect x="316.5" y="83" width="3" height="15" rx="1.5" fill="#f7f1e6"/>
+    </g>
+
+    <g>
+      <circle cx="72" cy="138" r="6" fill="#b8b4aa"/>
+      <line x1="69" y1="138" x2="75" y2="138" stroke="#4a4643" stroke-width="1.4"/>
+      <circle cx="318" cy="138" r="6" fill="#b8b4aa"/>
+      <line x1="315" y1="138" x2="321" y2="138" stroke="#4a4643" stroke-width="1.4"/>
+    </g>
+
+    <rect x="52" y="196" width="286" height="42" rx="3" fill="#000" opacity="0.2"/>
+    <text x="65" y="223" fill="#1a1720" font-family="Arial, sans-serif" font-size="16" font-weight="700">&lt;- OUTPUT</text>
+    <text x="325" y="223" text-anchor="end" fill="#1a1720" font-family="Arial, sans-serif" font-size="16" font-weight="700">INPUT -&gt;</text>
+
+    <text x="78" y="354" fill="#1a1720" font-family="Arial, sans-serif" font-size="44">Flanger</text>
+    <text x="281" y="383" fill="#1a1720" font-family="Arial, sans-serif" font-size="20" font-weight="700">BF-2</text>
+
+    <rect x="72" y="430" width="246" height="165" rx="4" fill="#000" opacity="0.45" transform="translate(0 4)"/>
+    <rect x="72" y="430" width="246" height="165" rx="4" fill="#141719"/>
+    <rect x="80" y="438" width="230" height="149" rx="3" fill="url(#rubber)" stroke="#000" stroke-opacity="0.65" stroke-width="2"/>
+    <text x="195" y="492" text-anchor="middle" fill="#000" fill-opacity="0.55" font-family="Arial, sans-serif" font-size="35" font-weight="700">BOSS</text>
+    <text x="194" y="491" text-anchor="middle" fill="#fff" fill-opacity="0.08" font-family="Arial, sans-serif" font-size="35" font-weight="700">BOSS</text>
+    <rect x="168" y="614" width="54" height="32" rx="5" fill="#000" fill-opacity="0.8"/>
+  </g>
+</svg>

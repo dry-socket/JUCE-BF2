@@ -4,6 +4,8 @@ A JUCE/CMake VST3 flanger inspired by the control layout and character of the Bo
 
 This is not an official Boss/Roland product or an exact circuit model. It is a compact digital flanger with manual delay, depth, rate, feedback/resonance, mix, and output controls.
 
+![BF-2 style flanger pedal reference](docs/bf2-reference.svg)
+
 ## Build
 
 Prerequisites:
