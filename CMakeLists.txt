@@ -32,6 +32,11 @@ juce_add_plugin(BF2StyleFlanger
 
 juce_generate_juce_header(BF2StyleFlanger)
 
+juce_add_binary_data(BF2StyleFlangerAssets
+    SOURCES
+        docs/bf_2.jpg
+)
+
 target_sources(BF2StyleFlanger
     PRIVATE
         Source/PluginProcessor.cpp
@@ -47,6 +52,7 @@ target_compile_definitions(BF2StyleFlanger
 
 target_link_libraries(BF2StyleFlanger
     PRIVATE
+        BF2StyleFlangerAssets
         juce::juce_audio_utils
         juce::juce_dsp
     PUBLIC

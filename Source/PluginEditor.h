@@ -32,6 +32,7 @@ private:
 
     BF2StyleFlangerAudioProcessor& audioProcessor;
     std::array<std::unique_ptr<Knob>, 6> knobs;
+    juce::Image pedalPhoto;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BF2StyleFlangerAudioProcessorEditor)
 };

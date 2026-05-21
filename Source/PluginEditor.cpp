@@ -1,15 +1,9 @@
 #include "PluginEditor.h"
+#include "BinaryData.h"
 
 namespace
 {
 const auto desktop = juce::Colour (0xff17171a);
-const auto pedalDark = juce::Colour (0xff46103b);
-const auto pedalMid = juce::Colour (0xffa73b87);
-const auto pedalLight = juce::Colour (0xffdf82be);
-const auto topPanel = juce::Colour (0xff080a0c);
-const auto cream = juce::Colour (0xffe8e2d3);
-const auto darkInk = juce::Colour (0xff1a1720);
-const auto rubber = juce::Colour (0xff141719);
 
 class BF2LookAndFeel final : public juce::LookAndFeel_V4
 {
@@ -62,6 +56,22 @@ public:
 
 BF2LookAndFeel bf2LookAndFeel;
 
+juce::Rectangle<float> getPhotoBounds (juce::Rectangle<int> editorBounds, const juce::Image& image)
+{
+    auto area = editorBounds.toFloat().reduced (24.0f, 16.0f);
+
+    if (! image.isValid())
+        return area;
+
+    const auto imageAspect = static_cast<float> (image.getWidth()) / static_cast<float> (image.getHeight());
+    const auto areaAspect = area.getWidth() / area.getHeight();
+
+    if (areaAspect > imageAspect)
+        return area.withWidth (area.getHeight() * imageAspect).withCentre (area.getCentre());
+
+    return area.withHeight (area.getWidth() / imageAspect).withCentre (area.getCentre());
+}
+
 void styleKnob (juce::Slider& slider)
 {
     slider.setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
@@ -70,17 +80,6 @@ void styleKnob (juce::Slider& slider)
     slider.setRotaryParameters (juce::MathConstants<float>::pi * 1.18f,
                                 juce::MathConstants<float>::pi * 2.82f,
                                 true);
-}
-
-void drawScrew (juce::Graphics& g, juce::Point<float> centre)
-{
-    auto bounds = juce::Rectangle<float> (12.0f, 12.0f).withCentre (centre);
-    g.setColour (juce::Colours::black.withAlpha (0.45f));
-    g.fillEllipse (bounds.translated (1.0f, 1.5f));
-    g.setColour (juce::Colour (0xffb8b4aa));
-    g.fillEllipse (bounds);
-    g.setColour (juce::Colour (0xff4a4643));
-    g.drawLine (bounds.getX() + 3.0f, centre.y, bounds.getRight() - 3.0f, centre.y, 1.4f);
 }
 }
 
@@ -92,12 +91,15 @@ BF2StyleFlangerAudioProcessorEditor::Knob::Knob (
     : small (isSmallKnob)
 {
     styleKnob (slider);
+    slider.setAlpha (0.01f);
+    slider.setTooltip (labelText);
     addAndMakeVisible (slider);
 
     label.setText (labelText, juce::dontSendNotification);
     label.setJustificationType (juce::Justification::centred);
-    label.setColour (juce::Label::textColourId, small ? darkInk : juce::Colours::white);
+    label.setColour (juce::Label::textColourId, juce::Colours::white);
     label.setFont (juce::FontOptions (small ? 11.0f : 10.0f, juce::Font::bold));
+    label.setVisible (false);
     addAndMakeVisible (label);
 
     attachment = std::make_unique<SliderAttachment> (state, parameterId, slider);
@@ -111,7 +113,9 @@ void BF2StyleFlangerAudioProcessorEditor::Knob::resized()
 }
 
 BF2StyleFlangerAudioProcessorEditor::BF2StyleFlangerAudioProcessorEditor (BF2StyleFlangerAudioProcessor& processor)
-    : AudioProcessorEditor (&processor), audioProcessor (processor)
+    : AudioProcessorEditor (&processor),
+      audioProcessor (processor),
+      pedalPhoto (juce::ImageCache::getFromMemory (BinaryData::bf_2_jpg, BinaryData::bf_2_jpgSize))
 {
     auto& state = audioProcessor.getValueTreeState();
     knobs = {
@@ -133,110 +137,35 @@ void BF2StyleFlangerAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (desktop);
 
-    auto pedal = getLocalBounds().toFloat().reduced (36.0f, 20.0f);
-    pedal.removeFromBottom (12.0f);
+    const auto photoBounds = getPhotoBounds (getLocalBounds(), pedalPhoto);
 
-    g.setColour (juce::Colours::black.withAlpha (0.5f));
-    g.fillRoundedRectangle (pedal.translated (4.0f, 8.0f), 17.0f);
-
-    juce::ColourGradient bodyGradient (pedalLight, pedal.getX(), pedal.getY(),
-                                       pedalDark, pedal.getX(), pedal.getBottom(), false);
-    bodyGradient.addColour (0.18, pedalMid);
-    bodyGradient.addColour (0.72, juce::Colour (0xff84256f));
-    g.setGradientFill (bodyGradient);
-    g.fillRoundedRectangle (pedal, 16.0f);
-
-    g.setColour (juce::Colour (0xff5f154f));
-    g.drawRoundedRectangle (pedal.reduced (1.5f), 15.0f, 3.0f);
-    g.setColour (juce::Colours::white.withAlpha (0.22f));
-    g.drawLine (pedal.getX() + 12.0f, pedal.getY() + 6.0f, pedal.getRight() - 12.0f, pedal.getY() + 6.0f, 2.0f);
-
-    auto top = pedal.reduced (18.0f, 16.0f).removeFromTop (150.0f);
-    g.setColour (topPanel);
-    g.fillRoundedRectangle (top, 5.0f);
-    g.setColour (juce::Colours::white.withAlpha (0.45f));
-    g.drawRoundedRectangle (top.reduced (1.0f), 5.0f, 1.0f);
-
-    g.setColour (cream);
-    g.setFont (juce::FontOptions (9.0f, juce::Font::bold));
-    g.drawText ("CHECK", top.withHeight (18.0f).translated (0.0f, -2.0f), juce::Justification::centred);
-
-    auto led = juce::Rectangle<float> (9.0f, 9.0f).withCentre ({ top.getCentreX(), top.getY() + 26.0f });
-    g.setColour (juce::Colour (0xff331515));
-    g.fillEllipse (led.expanded (2.0f));
-    g.setColour (juce::Colour (0xffb7282d));
-    g.fillEllipse (led);
-    g.setColour (juce::Colours::white.withAlpha (0.25f));
-    g.fillEllipse (led.reduced (2.0f).withTrimmedBottom (4.0f));
-
-    auto jackBand = juce::Rectangle<float> (pedal.getX() + 16.0f, top.getBottom() + 10.0f,
-                                           pedal.getWidth() - 32.0f, 42.0f);
-    g.setColour (juce::Colours::black.withAlpha (0.2f));
-    g.fillRoundedRectangle (jackBand, 3.0f);
-    g.setColour (darkInk);
-    g.setFont (juce::FontOptions (16.0f, juce::Font::bold));
-    g.drawText ("<- OUTPUT", jackBand.removeFromLeft (125.0f), juce::Justification::centredLeft);
-    g.drawText ("INPUT ->", jackBand, juce::Justification::centredRight);
-
-    auto title = juce::Rectangle<float> (pedal.getX() + 42.0f, pedal.getY() + 290.0f,
-                                        pedal.getWidth() - 84.0f, 70.0f);
-    g.setColour (darkInk);
-    g.setFont (juce::FontOptions (44.0f, juce::Font::plain));
-    g.drawText ("Flanger", title.removeFromTop (44.0f), juce::Justification::centredLeft);
-    g.setFont (juce::FontOptions (20.0f, juce::Font::bold));
-    g.drawText ("BF-2", title, juce::Justification::centredRight);
-
-    auto foot = juce::Rectangle<float> (pedal.getX() + 36.0f, pedal.getY() + 410.0f,
-                                       pedal.getWidth() - 72.0f, 165.0f);
     g.setColour (juce::Colours::black.withAlpha (0.45f));
-    g.fillRoundedRectangle (foot.translated (0.0f, 4.0f), 5.0f);
-    g.setColour (rubber);
-    g.fillRoundedRectangle (foot, 4.0f);
+    g.fillRoundedRectangle (photoBounds.translated (4.0f, 8.0f), 8.0f);
 
-    juce::ColourGradient rubberGradient (juce::Colour (0xff303538), foot.getX(), foot.getY(),
-                                         juce::Colour (0xff050607), foot.getX(), foot.getBottom(), false);
-    g.setGradientFill (rubberGradient);
-    g.fillRoundedRectangle (foot.reduced (8.0f), 3.0f);
-    g.setColour (juce::Colours::black.withAlpha (0.65f));
-    g.drawRoundedRectangle (foot.reduced (8.0f), 3.0f, 2.0f);
-
-    g.setFont (juce::FontOptions (35.0f, juce::Font::bold));
-    g.setColour (juce::Colours::black.withAlpha (0.55f));
-    g.drawText ("BOSS", foot.reduced (18.0f).removeFromTop (54.0f), juce::Justification::centred);
-    g.setColour (juce::Colours::white.withAlpha (0.08f));
-    g.drawText ("BOSS", foot.reduced (18.0f).removeFromTop (54.0f).translated (-1.0f, -1.0f),
-                juce::Justification::centred);
-
-    auto bottomLatch = juce::Rectangle<float> (54.0f, 32.0f).withCentre ({ pedal.getCentreX(), pedal.getBottom() + 6.0f });
-    g.setColour (juce::Colours::black.withAlpha (0.8f));
-    g.fillRoundedRectangle (bottomLatch, 5.0f);
-
-    auto sideJackLeft = juce::Rectangle<float> (18.0f, 60.0f).withCentre ({ pedal.getX() - 4.0f, pedal.getY() + 215.0f });
-    auto sideJackRight = sideJackLeft.withCentre ({ pedal.getRight() + 4.0f, pedal.getY() + 215.0f });
-    g.setColour (juce::Colour (0xff59595a));
-    g.fillRoundedRectangle (sideJackLeft, 5.0f);
-    g.fillRoundedRectangle (sideJackRight, 5.0f);
-    g.setColour (juce::Colours::black.withAlpha (0.55f));
-    g.drawRoundedRectangle (sideJackLeft, 5.0f, 1.0f);
-    g.drawRoundedRectangle (sideJackRight, 5.0f, 1.0f);
-
-    drawScrew (g, { pedal.getX() + 18.0f, top.getY() + 102.0f });
-    drawScrew (g, { pedal.getRight() - 18.0f, top.getY() + 102.0f });
+    if (pedalPhoto.isValid())
+        g.drawImage (pedalPhoto, photoBounds, juce::RectanglePlacement::stretchToFit);
 }
 
 void BF2StyleFlangerAudioProcessorEditor::resized()
 {
-    auto pedal = getLocalBounds().reduced (36, 20);
-    pedal.removeFromBottom (12);
+    const auto photo = getPhotoBounds (getLocalBounds(), pedalPhoto);
+    const auto x = photo.getX();
+    const auto y = photo.getY();
+    const auto w = photo.getWidth();
+    const auto h = photo.getHeight();
 
-    auto top = pedal.reduced (18, 16).removeFromTop (150);
-    auto knobRow = top.reduced (6, 20).withTrimmedTop (10);
-    const auto largeKnobWidth = knobRow.getWidth() / 4;
+    const std::array<float, 4> knobCentres { 0.156f, 0.356f, 0.558f, 0.759f };
+    const auto knobSize = juce::roundToInt (w * 0.19f);
+    const auto knobY = juce::roundToInt (y + h * 0.22f - static_cast<float> (knobSize) * 0.5f);
 
     for (auto i = 0; i < 4; ++i)
-        knobs[static_cast<size_t> (i)]->setBounds (knobRow.removeFromLeft (largeKnobWidth).reduced (3, 0));
+    {
+        const auto knobX = juce::roundToInt (x + w * knobCentres[static_cast<size_t> (i)]
+                                             - static_cast<float> (knobSize) * 0.5f);
+        knobs[static_cast<size_t> (i)]->setBounds (knobX, knobY, knobSize, knobSize);
+    }
 
-    auto trimArea = juce::Rectangle<int> (pedal.getX() + 52, pedal.getY() + 362, pedal.getWidth() - 104, 52);
-    knobs[4]->setBounds (trimArea.removeFromLeft (82));
-    knobs[5]->setBounds (trimArea.removeFromRight (82));
+    const auto trimSize = juce::roundToInt (w * 0.16f);
+    knobs[4]->setBounds (juce::roundToInt (x + w * 0.19f), juce::roundToInt (y + h * 0.57f), trimSize, trimSize);
+    knobs[5]->setBounds (juce::roundToInt (x + w * 0.65f), juce::roundToInt (y + h * 0.57f), trimSize, trimSize);
 }
